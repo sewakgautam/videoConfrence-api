@@ -10,7 +10,10 @@ export class RoomService {
     const roomName = input.roomid;
     const participantName = input.userid;
 
-    const at = new AccessToken('devkey', 'secret', {
+    const apiKey = 'devkey';
+    const secretKey = 'secret';
+
+    const at = new AccessToken(apiKey, secretKey, {
       identity: participantName,
     });
     at.addGrant({
