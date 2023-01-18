@@ -19,7 +19,6 @@ export class RoomService {
 
           const apiKey = this.configService.get('apikey');
           const secretKey = this.configService.get('secretkry');
-          console.log(apiKey);
 
           const at = new AccessToken('devkey', 'secret', {
             identity: participantName,

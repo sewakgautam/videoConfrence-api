@@ -7,7 +7,6 @@ redisClient.on('ready', () => {
 });
 
 export async function redisCacheSet(userandroom: string, token, ttl) {
-  console.log(token);
   const datasaved = await redisClient.set(
     userandroom,
     JSON.stringify(token),
