@@ -19,8 +19,9 @@ export class RoomService {
 
           const apiKey = this.configService.get('apikey');
           const secretKey = this.configService.get('secretkry');
+          const 
 
-          const at = new AccessToken('devkey', 'secret', {
+          const at = new AccessToken(apiKey, secretKey, {
             identity: participantName,
           });
           at.addGrant({
