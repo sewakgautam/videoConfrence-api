@@ -6,12 +6,8 @@ redisClient.on('ready', () => {
   console.log('Redis client is ready');
 });
 
-export async function redisCacheSet(userandroom: string, token, ttl) {
-  const datasaved = await redisClient.set(
-    userandroom,
-    JSON.stringify(token),
-    ttl,
-  );
+export async function redisCacheSet(userandroom: string, token: string) {
+  const datasaved = await redisClient.set(userandroom, JSON.stringify(token));
   return datasaved;
 }
 

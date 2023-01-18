@@ -12,17 +12,18 @@ export class RoomService {
     if (!input.roomid || !input.userid)
       throw new BadRequestException('Please pass required data');
     const tokens = await redisChaceGet(`${input.userid}-${input.roomid}`)
-      .then((res) => {
+      .then(async (res) => {
         if (!res) {
           const roomName = input.roomid;
           const participantName = input.userid;
 
-          const apiKey = this.configService.get('apikey');
-          const secretKey = this.configService.get('secretkry');
-          const 
+          const apiKey = await this.configService.get('apikey');
+          const secretKey = await this.configService.get('secretkey');
+          const ttl = await this.configService.get('ttl');
 
           const at = new AccessToken(apiKey, secretKey, {
             identity: participantName,
+            ttl,
           });
           at.addGrant({
             roomJoin: true,
@@ -32,14 +33,11 @@ export class RoomService {
           });
 
           const token = at.toJwt();
-          redisCacheSet(
-            `${input.userid}-${input.roomid}`,
-            token,
-            this.configService.get('ttl'),
-          );
+          redisCacheSet(`${input.userid}-${input.roomid}`, token);
           return token;
         }
-        return res;
+        const replacetoken = res.replace(/"/g, '');
+        return replacetoken;
       })
       .catch((err) => {
         console.log(err);
