@@ -2,7 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateRoomDto {
   @ApiProperty({ type: 'string', format: 'binary' })
-  roomid: string;
+  user: string;
+
   @ApiProperty({ type: 'string', format: 'binary' })
-  userid: string;
+  room: string;
 }

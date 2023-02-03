@@ -24,4 +24,9 @@ export class RoomController {
   create(@Body() createRoomDto: CreateRoomDto) {
     return this.roomService.create(createRoomDto);
   }
+
+  @Get(':sid')
+  update(@Param('sid') sid: string) {
+    return this.roomService.update(sid);
+  }
 }

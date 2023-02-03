@@ -3,46 +3,51 @@ import { CreateRoomDto } from './dto/create-room.dto';
 import { AccessToken } from 'livekit-server-sdk';
 import { redisCacheSet, redisChaceGet } from 'src/redishelper';
 import { ConfigService } from '@nestjs/config';
+import { Room } from './entity/room.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class RoomService {
-  constructor(private configService: ConfigService) {}
+  constructor(
+    private configService: ConfigService,
+    @InjectRepository(Room) private readonly roomRepository: Repository<Room>,
+  ) {}
 
   async create(input: CreateRoomDto) {
-    if (!input.roomid || !input.userid)
+    const apiKey = await this.configService.get('apikey');
+    const secretKey = await this.configService.get('secretkey');
+    const ttl = await this.configService.get('ttl');
+
+    if (!input.user || !input.room)
       throw new BadRequestException('Please pass required data');
-    const tokens = await redisChaceGet(`${input.userid}-${input.roomid}`)
-      .then(async (res) => {
-        if (!res) {
-          const roomName = input.roomid;
-          const participantName = input.userid;
+    const roomdetails = await this.roomRepository.find({
+      where: { room: input.room },
+    });
+    const checking = roomdetails.map((eachData) => {
+      if (eachData.user === input.user || eachData.user === 'supervisor') {
+        throw new BadRequestException('This user Already Exist on room');
+      }
+    });
 
-          const apiKey = await this.configService.get('apikey');
-          const secretKey = await this.configService.get('secretkey');
-          const ttl = await this.configService.get('ttl');
+    const participantName = input.user;
+    console.log(input.user);
 
-          const at = new AccessToken(apiKey, secretKey, {
-            identity: participantName,
-            ttl,
-          });
-          at.addGrant({
-            roomJoin: true,
-            room: roomName,
-            canPublish: true,
-            canSubscribe: true,
-          });
+    const at = new AccessToken(apiKey, secretKey, {
+      identity: participantName,
+      ttl,
+    });
+    at.addGrant({
+      roomJoin: true,
+      canPublish: input.user == 'superuser',
+      canSubscribe: true,
+    });
+    const token = at.toJwt();
+    const saveUser = await this.roomRepository.save(input);
+    return { ...saveUser, token };
+  }
 
-          const token = at.toJwt();
-          redisCacheSet(`${input.userid}-${input.roomid}`, token);
-          return token;
-        }
-        const replacetoken = res.replace(/"/g, '');
-        return replacetoken;
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
-    return { tokens };
+  update(sid: string) {
+    return true;
   }
 }
