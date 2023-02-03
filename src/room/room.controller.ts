@@ -10,6 +10,7 @@ import {
 import { RoomService } from './room.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { updatePremissionDto } from './dto/UpdatePremissionDto';
 
 @ApiTags('Room')
 @Controller('room')
@@ -25,8 +26,8 @@ export class RoomController {
     return this.roomService.create(createRoomDto);
   }
 
-  @Get(':sid')
-  update(@Param('sid') sid: string) {
-    return this.roomService.update(sid);
+  @Post('/update-premission')
+  updateHandRaise(@Body() updatePremissionDto: updatePremissionDto) {
+    return this.roomService.UpdateHandRaise(updatePremissionDto);
   }
 }

@@ -1,11 +1,14 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
-import { AccessToken } from 'livekit-server-sdk';
+import { AccessToken, RoomServiceClient } from 'livekit-server-sdk';
 import { redisCacheSet, redisChaceGet } from 'src/redishelper';
 import { ConfigService } from '@nestjs/config';
 import { Room } from './entity/room.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { updatePremissionDto } from './dto/UpdatePremissionDto';
+import { identity } from 'rxjs';
+import { canPublishPremissionDto } from './dto/Canpublish.dto';
 
 @Injectable()
 export class RoomService {
@@ -17,6 +20,7 @@ export class RoomService {
   async create(input: CreateRoomDto) {
     const apiKey = await this.configService.get('apikey');
     const secretKey = await this.configService.get('secretkey');
+    const metadata = JSON.stringify({ raised: [] });
     const ttl = await this.configService.get('ttl');
 
     if (!input.user || !input.room)
@@ -36,6 +40,7 @@ export class RoomService {
     const at = new AccessToken(apiKey, secretKey, {
       identity: participantName,
       ttl,
+      metadata,
     });
     at.addGrant({
       roomJoin: true,
@@ -47,7 +52,34 @@ export class RoomService {
     return { ...saveUser, token };
   }
 
-  update(sid: string) {
-    return true;
+  async UpdateHandRaise(input: updatePremissionDto) {
+    const apiKey = await this.configService.get('apikey');
+    const secretKey = await this.configService.get('secretkey');
+    const host = await this.configService.get('host');
+
+    const { roomId, userId } = input;
+    const metadata = JSON.stringify({ raised: [`${userId}`] });
+
+    const at = new RoomServiceClient(host, apiKey, secretKey);
+    at.updateRoomMetadata(roomId, metadata);
+    return { message: `${userId} has Raise the Hand` };
+  }
+
+  async canPublish(input: canPublishPremissionDto) {
+    const { roomId, identity, userId } = input;
+    const apiKey = await this.configService.get('apikey');
+    const secretKey = await this.configService.get('secretkey');
+    const host = await this.configService.get('host');
+    const metadata = 'asd';
+    const at = new RoomServiceClient(host, apiKey, secretKey);
+    at.updateParticipant(roomId, identity, undefined, {
+      canPublish: true,
+      canSubscribe: true,
+      canPublishData: true,
+      hidden: false,
+      recorder: false,
+    });
+
+    return { message: `${userId} got premission to canPublish` };
   }
 }
