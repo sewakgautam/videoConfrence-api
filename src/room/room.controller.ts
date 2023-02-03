@@ -10,7 +10,8 @@ import {
 import { RoomService } from './room.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
-import { updatePremissionDto } from './dto/UpdatePremissionDto';
+import { HandRaiseDto } from './dto/HandRaise.dto';
+import { canPublishPremissionDto } from './dto/Canpublish.dto';
 
 @ApiTags('Room')
 @Controller('room')
@@ -26,8 +27,13 @@ export class RoomController {
     return this.roomService.create(createRoomDto);
   }
 
+  @Post('/update-handraise')
+  updateHandRaise(@Body() handRaiseDto: HandRaiseDto) {
+    return this.roomService.UpdateHandRaise(handRaiseDto);
+  }
+
   @Post('/update-premission')
-  updateHandRaise(@Body() updatePremissionDto: updatePremissionDto) {
-    return this.roomService.UpdateHandRaise(updatePremissionDto);
+  updatePremission(@Body() updatePremissionDto: canPublishPremissionDto) {
+    return this.roomService.canPublishPremission(updatePremissionDto);
   }
 }

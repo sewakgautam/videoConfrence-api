@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { Room } from './entity/room.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { updatePremissionDto } from './dto/UpdatePremissionDto';
+import { HandRaiseDto } from './dto/HandRaise.dto';
 import { identity } from 'rxjs';
 import { canPublishPremissionDto } from './dto/Canpublish.dto';
 
@@ -52,7 +52,7 @@ export class RoomService {
     return { ...saveUser, token };
   }
 
-  async UpdateHandRaise(input: updatePremissionDto) {
+  async UpdateHandRaise(input: HandRaiseDto) {
     const apiKey = await this.configService.get('apikey');
     const secretKey = await this.configService.get('secretkey');
     const host = await this.configService.get('host');
@@ -65,7 +65,7 @@ export class RoomService {
     return { message: `${userId} has Raise the Hand` };
   }
 
-  async canPublish(input: canPublishPremissionDto) {
+  async canPublishPremission(input: canPublishPremissionDto) {
     const { roomId, identity, userId } = input;
     const apiKey = await this.configService.get('apikey');
     const secretKey = await this.configService.get('secretkey');
