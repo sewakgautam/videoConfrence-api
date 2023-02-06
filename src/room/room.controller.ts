@@ -28,11 +28,19 @@ export class RoomController {
   }
 
   @Post('/update-handraise')
+  @ApiBody({
+    description: 'Return Token',
+    type: HandRaiseDto,
+  })
   updateHandRaise(@Body() handRaiseDto: HandRaiseDto) {
     return this.roomService.UpdateHandRaise(handRaiseDto);
   }
 
   @Post('/update-premission')
+  @ApiBody({
+    description: 'Return Token',
+    type: canPublishPremissionDto,
+  })
   updatePremission(@Body() updatePremissionDto: canPublishPremissionDto) {
     return this.roomService.canPublishPremission(updatePremissionDto);
   }

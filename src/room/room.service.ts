@@ -70,7 +70,6 @@ export class RoomService {
     const apiKey = await this.configService.get('apikey');
     const secretKey = await this.configService.get('secretkey');
     const host = await this.configService.get('host');
-    const metadata = 'asd';
     const at = new RoomServiceClient(host, apiKey, secretKey);
     at.updateParticipant(roomId, identity, undefined, {
       canPublish: true,
